@@ -1,0 +1,429 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>績效分析報告 | Performance Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .stat-card:hover { transform: translateY(-2px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+
+    <!-- Navigation Sidebar -->
+    <aside class="fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-50 hidden md:block">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight">Quant<span class="text-indigo-500">Flow</span></span>
+            </div>
+            
+            <nav class="space-y-2">
+                <button data-goto="p1" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fas fa-th-large"></i> <span>總控台</span>
+                </button>
+                <button data-goto="p5" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fas fa-vial"></i> <span>回測引擎</span>
+                </button>
+                <button data-goto="p6" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-600/10 text-indigo-400 font-medium">
+                    <i class="fas fa-chart-pie"></i> <span>績效報告</span>
+                </button>
+                <button data-goto="p3" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fas fa-code"></i> <span>策略開發</span>
+                </button>
+                <button data-goto="p7" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fas fa-microchip"></i> <span>最佳化實驗室</span>
+                </button>
+                <button data-goto="p8" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fas fa-robot"></i> <span>AI 監控</span>
+                </button>
+            </nav>
+        </div>
+        
+        <div class="absolute bottom-0 w-full p-6 border-t border-slate-800">
+            <button data-goto="p9" class="flex items-center gap-3 text-slate-400 hover:text-white">
+                <i class="fas fa-cog"></i> <span>系統設定</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 p-4 md:p-8">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-1">績效分析報告 <span class="text-sm font-normal text-slate-500 ml-2">ID: #ST-99284</span></h1>
+                <p class="text-slate-400">策略：<span class="text-indigo-400">TrendFollower_V2_BTC</span> | 測試區間：2023-01-01 至 2024-05-20</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 text-sm">
+                    <i class="fas fa-download"></i> 匯出 CSV
+                </button>
+                <button class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition flex items-center gap-2 text-sm shadow-lg shadow-indigo-500/20">
+                    <i class="fas fa-file-pdf"></i> 生成專業報表
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="glass-card p-6 rounded-2xl stat-card">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-slate-400 text-sm">總獲利 (Net Profit)</span>
+                    <i class="fas fa-arrow-up text-emerald-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-emerald-400">+$124,530.22</div>
+                <div class="text-xs text-slate-500 mt-2">+24.8% <span class="text-slate-600">vs 基準</span></div>
+            </div>
+            <div class="glass-card p-6 rounded-2xl stat-card">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-slate-400 text-sm">勝率 (Win Rate)</span>
+                    <i class="fas fa-bullseye text-indigo-500"></i>
+                </div>
+                <div class="text-2xl font-bold">58.42%</div>
+                <div class="text-xs text-slate-500 mt-2">1,240 筆交易 <span class="text-slate-600">總計</span></div>
+            </div>
+            <div class="glass-card p-6 rounded-2xl stat-card">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-slate-400 text-sm">獲利因子 (Profit Factor)</span>
+                    <i class="fas fa-balance-scale text-amber-500"></i>
+                </div>
+                <div class="text-2xl font-bold">1.82</div>
+                <div class="text-xs text-slate-500 mt-2">風險收益比極佳</div>
+            </div>
+            <div class="glass-card p-6 rounded-2xl stat-card border-rose-500/20">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-slate-400 text-sm">最大回撤 (MDD)</span>
+                    <i class="fas fa-chart-line rotate-180 text-rose-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-rose-400">-12.45%</div>
+                <div class="text-xs text-slate-500 mt-2">恢復天數: 42 天</div>
+            </div>
+        </div>
+
+        <!-- Main Chart Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Equity Curve -->
+            <div class="lg:col-span-2 glass-card p-6 rounded-2xl min-h-[400px]">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-semibold text-lg">資金增長曲線 (Equity Curve)</h3>
+                    <div class="flex gap-2">
+                        <span class="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-[10px] rounded uppercase font-bold tracking-wider">Log Scale</span>
+                        <span class="px-2 py-1 bg-slate-700 text-slate-300 text-[10px] rounded uppercase font-bold tracking-wider underline cursor-pointer">Reinvested</span>
+                    </div>
+                </div>
+                <div class="h-[350px] w-full">
+                    <canvas id="equityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Distribution & Metrics -->
+            <div class="glass-card p-6 rounded-2xl">
+                <h3 class="font-semibold text-lg mb-6">核心指標統計</h3>
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">夏普比率 (Sharpe Ratio)</span>
+                        <span class="font-mono text-indigo-400">2.14</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5">
+                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 75%"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">索提諾比率 (Sortino)</span>
+                        <span class="font-mono text-indigo-400">3.02</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">年化波動度 (Volatility)</span>
+                        <span class="font-mono">18.24%</span>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">連虧次數 (Max Consecutive)</span>
+                        <span class="font-mono text-rose-400">5</span>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-sm">預期報酬 (Expectancy)</span>
+                        <span class="font-mono text-emerald-400">$102.40 / Trade</span>
+                    </div>
+
+                    <div class="mt-10 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                        <div class="text-xs text-slate-500 uppercase tracking-widest mb-3">風險評分</div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl font-bold gradient-text">A+</div>
+                            <div class="text-xs text-slate-400">此策略在回測區間表現出極強的韌性與穩定盈利能力。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Analysis & MDD Depth -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Monthly Heatmap -->
+            <div class="glass-card p-6 rounded-2xl overflow-x-auto">
+                <h3 class="font-semibold text-lg mb-6">月度盈虧矩陣 (Monthly Return %)</h3>
+                <table class="w-full text-xs text-center border-collapse">
+                    <thead>
+                        <tr class="text-slate-500">
+                            <th class="py-2 px-1">Year</th>
+                            <th class="py-2 px-1">Jan</th><th class="py-2 px-1">Feb</th><th class="py-2 px-1">Mar</th><th class="py-2 px-1">Apr</th>
+                            <th class="py-2 px-1">May</th><th class="py-2 px-1">Jun</th><th class="py-2 px-1">Jul</th><th class="py-2 px-1">Aug</th>
+                            <th class="py-2 px-1">Sep</th><th class="py-2 px-1">Oct</th><th class="py-2 px-1">Nov</th><th class="py-2 px-1">Dec</th>
+                            <th class="py-2 px-1 font-bold">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-t border-slate-800">
+                            <td class="py-3 text-slate-400">2024</td>
+                            <td class="bg-emerald-500/20 text-emerald-400 font-medium">4.2</td>
+                            <td class="bg-emerald-500/30 text-emerald-300 font-bold">8.1</td>
+                            <td class="bg-rose-500/20 text-rose-400">-2.3</td>
+                            <td class="bg-emerald-500/10 text-emerald-500">1.2</td>
+                            <td class="bg-emerald-500/20 text-emerald-400">3.8</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="bg-slate-800 text-slate-600">-</td>
+                            <td class="font-bold text-emerald-400">15.0%</td>
+                        </tr>
+                        <tr class="border-t border-slate-800">
+                            <td class="py-3 text-slate-400">2023</td>
+                            <td class="bg-emerald-500/10 text-emerald-500">0.8</td>
+                            <td class="bg-rose-500/10 text-rose-500">-0.4</td>
+                            <td class="bg-emerald-500/40 text-emerald-200 font-bold">12.5</td>
+                            <td class="bg-emerald-500/20 text-emerald-400">4.1</td>
+                            <td class="bg-emerald-500/10 text-emerald-500">0.2</td>
+                            <td class="bg-rose-500/30 text-rose-300 font-bold">-6.8</td>
+                            <td class="bg-emerald-500/10 text-emerald-500">2.1</td>
+                            <td class="bg-emerald-500/20 text-emerald-400">3.5</td>
+                            <td class="bg-rose-500/10 text-rose-500">-1.2</td>
+                            <td class="bg-emerald-500/40 text-emerald-200 font-bold">14.2</td>
+                            <td class="bg-emerald-500/20 text-emerald-400">5.3</td>
+                            <td class="bg-emerald-500/10 text-emerald-500">1.9</td>
+                            <td class="font-bold text-emerald-400">36.2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Drawdown Chart -->
+            <div class="glass-card p-6 rounded-2xl">
+                <h3 class="font-semibold text-lg mb-6 text-rose-400">回撤分析 (Drawdown Analysis)</h3>
+                <div class="h-[200px] w-full">
+                    <canvas id="mddChart"></canvas>
+                </div>
+                <div class="mt-6 flex justify-between gap-4">
+                    <div class="text-center flex-1">
+                        <div class="text-slate-400 text-[10px] uppercase">最大深度</div>
+                        <div class="text-xl font-bold text-rose-400">12.45%</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-slate-400 text-[10px] uppercase">平均深度</div>
+                        <div class="text-xl font-bold">3.21%</div>
+                    </div>
+                    <div class="text-center flex-1">
+                        <div class="text-slate-400 text-[10px] uppercase">平均回補期</div>
+                        <div class="text-xl font-bold">14d</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Diagnostics -->
+        <div class="glass-card p-6 rounded-2xl mb-8">
+            <h3 class="font-semibold text-lg mb-6">策略修正參考建議</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-800/40 border-l-4 border-emerald-500 p-4">
+                    <div class="text-sm font-bold text-emerald-400 mb-2 underline">多頭市場適應性</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">在強趨勢中獲利豐厚。建議在 SMA 200 以上保持完整倉位。</p>
+                </div>
+                <div class="bg-slate-800/40 border-l-4 border-amber-500 p-4">
+                    <div class="text-sm font-bold text-amber-400 mb-2 underline">震盪過濾建議</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">2023 年 9 月的連續虧損主要發生在 ADX 低於 20 的低波動期。建議加入 ADX 過濾器。</p>
+                </div>
+                <div class="bg-slate-800/40 border-l-4 border-indigo-500 p-4">
+                    <div class="text-sm font-bold text-indigo-400 mb-2 underline">部位調整優化</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">當前固定手數表現良好，若改用凱利公式 (Kelly Criterion) 1/4 版，預計回測報酬率可提升 15%。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Trades List Snippet -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="font-semibold text-lg">近期關鍵交易記錄</h3>
+                <button class="text-indigo-400 text-sm hover:underline">查看完整清單 <i class="fas fa-chevron-right ml-1"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase">
+                        <tr>
+                            <th class="px-6 py-3 font-medium">成交時間</th>
+                            <th class="px-6 py-3 font-medium">方向</th>
+                            <th class="px-6 py-3 font-medium">進場價格</th>
+                            <th class="px-6 py-3 font-medium">出場價格</th>
+                            <th class="px-6 py-3 font-medium text-right">損益 ($)</th>
+                            <th class="px-6 py-3 font-medium text-right">收益率 (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-sm">
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="px-6 py-4 text-slate-400">2024-05-19 14:30</td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">LONG</span></td>
+                            <td class="px-6 py-4 font-mono">$66,420.2</td>
+                            <td class="px-6 py-4 font-mono">$67,810.5</td>
+                            <td class="px-6 py-4 text-right text-emerald-400 font-medium">+$1,390.3</td>
+                            <td class="px-6 py-4 text-right">+2.09%</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="px-6 py-4 text-slate-400">2024-05-18 09:15</td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold">SHORT</span></td>
+                            <td class="px-6 py-4 font-mono">$67,200.0</td>
+                            <td class="px-6 py-4 font-mono">$67,550.2</td>
+                            <td class="px-6 py-4 text-right text-rose-400 font-medium">-$350.2</td>
+                            <td class="px-6 py-4 text-right">-0.52%</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="px-6 py-4 text-slate-400">2024-05-15 22:45</td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">LONG</span></td>
+                            <td class="px-6 py-4 font-mono">$64,800.0</td>
+                            <td class="px-6 py-4 font-mono">$66,920.0</td>
+                            <td class="px-6 py-4 text-right text-emerald-400 font-medium">+$2,120.0</td>
+                            <td class="px-6 py-4 text-right">+3.27%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer Nav -->
+        <div class="mt-12 flex justify-between items-center text-slate-500 text-sm border-t border-slate-800 pt-6">
+            <button data-goto="p5" class="hover:text-indigo-400 flex items-center gap-2">
+                <i class="fas fa-chevron-left"></i> 返回回測引擎
+            </button>
+            <button data-goto="p7" class="hover:text-indigo-400 flex items-center gap-2">
+                進入最佳化實驗室 <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Handle Navigation
+        document.querySelectorAll('[data-goto]').forEach(button => {
+            button.addEventListener('click', () => {
+                const target = button.getAttribute('data-goto');
+                console.log(`Navigating to ${target}`);
+                // In a real app: window.location.href = `${target}.html`;
+                alert(`模擬導覽至頁面: ${target}`);
+            });
+        });
+
+        // Initialize Charts
+        window.onload = () => {
+            // Equity Chart
+            const ctxEquity = document.getElementById('equityChart').getContext('2d');
+            const equityGradient = ctxEquity.createLinearGradient(0, 0, 0, 350);
+            equityGradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+            equityGradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+            new Chart(ctxEquity, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+                    datasets: [{
+                        label: 'Equity ($)',
+                        data: [100, 102, 101, 105, 108, 107, 110, 115, 114, 118, 122, 120, 125, 128, 135, 132, 138, 142, 145, 143, 150, 155, 152, 158, 165, 170, 172, 178, 185, 192].map(x => x * 1000),
+                        borderColor: '#6366f1',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: equityGradient,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#64748b', maxRotation: 0 }
+                        }
+                    }
+                }
+            });
+
+            // MDD Chart
+            const ctxMdd = document.getElementById('mddChart').getContext('2d');
+            new Chart(ctxMdd, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => i),
+                    datasets: [{
+                        label: 'Drawdown %',
+                        data: [0, -1, -2, 0, -0.5, -3, -4, -2, 0, -1, -5, -8, -12, -7, -3, 0, -1, -2, 0, -1, -0.5, 0, -2, -3, -1, 0, -1, -2, -0.5, 0],
+                        borderColor: '#f43f5e',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b' },
+                            max: 0
+                        },
+                        x: { display: false }
+                    }
+                }
+            });
+        };
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+
+```
