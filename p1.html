@@ -1,0 +1,436 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量化交易總控台 (Main Dashboard)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-dark: #020617;
+            --card-dark: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .glow-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+        
+        .pulse-online {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(0.95); opacity: 1; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="overflow-hidden h-screen flex">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-slate-800 bg-slate-900/50 flex flex-col hidden lg:flex">
+        <div class="p-6">
+            <div class="flex items-center gap-3 text-blue-500 mb-8">
+                <i class="fa-solid fa-microchip text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">QUANT-AI</span>
+            </div>
+            
+            <nav class="space-y-2">
+                <button data-goto="p1" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-600/30">
+                    <i class="fa-solid fa-gauge-high"></i> <span>總量化控台</span>
+                </button>
+                <button data-goto="p2" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-database"></i> <span>數據管理中心</span>
+                </button>
+                <button data-goto="p3" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-code"></i> <span>策略開發編譯</span>
+                </button>
+                <button data-goto="p4" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-layer-group"></i> <span>部位加總同步</span>
+                </button>
+                <button data-goto="p5" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-flask-vial"></i> <span>回測模擬引擎</span>
+                </button>
+                <button data-goto="p6" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-chart-line"></i> <span>績效分析報告</span>
+                </button>
+                <button data-goto="p7" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-vial-circle-check"></i> <span>最佳化實驗室</span>
+                </button>
+                <button data-goto="p8" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-robot"></i> <span>AI 決策流水線</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="mt-auto p-6">
+            <button data-goto="p9" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-400">
+                <i class="fa-solid fa-gear"></i> <span>系統與 API 設定</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        
+        <!-- Header -->
+        <header class="h-16 border-b border-slate-800 px-8 flex items-center justify-between bg-slate-950/50 sticky top-0 z-10 backdrop-blur-md">
+            <div class="flex items-center gap-6">
+                <h1 class="text-lg font-semibold">系統總覽</h1>
+                <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-online"></span>
+                    <span class="text-xs text-emerald-400 font-medium mono">unitradeAPI: CONNECTED</span>
+                </div>
+                <div class="text-xs text-slate-500 mono">Latency: 12ms</div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-1.5 rounded-lg border border-slate-700">
+                    <i class="fa-regular fa-clock text-slate-400"></i>
+                    <span class="mono text-sm tracking-widest">2023-10-27 14:35:02</span>
+                </div>
+                <div class="flex gap-2">
+                    <button class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-slate-800 overflow-hidden border border-slate-700">
+                        <img src="https://picsum.photos/seed/p1-user/40/40" alt="Avatar">
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-8 space-y-8">
+            
+            <!-- Quick Stats & Emergency Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-card p-6 border-l-4 border-l-blue-500">
+                    <div class="text-slate-400 text-xs font-semibold mb-1">總權益 (Total Equity)</div>
+                    <div class="text-3xl font-bold mono">$1,245,680.00</div>
+                    <div class="flex items-center gap-2 mt-2 text-emerald-400 text-sm">
+                        <i class="fa-solid fa-caret-up"></i>
+                        <span>+2.45% ($29,840)</span>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <div class="text-slate-400 text-xs font-semibold mb-1">當前總部位 (Open Pos)</div>
+                    <div class="text-3xl font-bold mono">24 Units</div>
+                    <div class="flex items-center gap-2 mt-2 text-slate-400 text-sm">
+                        <span>Net Exposure: Long 8</span>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <div class="text-slate-400 text-xs font-semibold mb-1">今日交易盈虧 (Daily PnL)</div>
+                    <div class="text-3xl font-bold mono text-emerald-400">+$12,482</div>
+                    <div class="flex items-center gap-2 mt-2 text-slate-500 text-sm">
+                        <span>Win Rate: 68%</span>
+                    </div>
+                </div>
+                <!-- System Action -->
+                <div class="flex flex-col gap-2">
+                    <button class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all shadow-lg glow-green">
+                        <i class="fa-solid fa-play"></i> 一鍵啟動所有策略
+                    </button>
+                    <button class="flex-1 bg-rose-600/20 hover:bg-rose-600 border border-rose-600/40 text-rose-400 hover:text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all">
+                        <i class="fa-solid fa-stop"></i> 全部位緊急平倉
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Modes Status -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- AI Mode A -->
+                <div class="glass-card p-6 border border-slate-700/50 group hover:border-blue-500/50 transition-colors">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold">AI 模式 A - 短線動能</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">High Frequency Scalping</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase font-bold">Live Running</span>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">運行口數</span>
+                            <span class="mono font-semibold">12 Units</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">當前損益</span>
+                            <span class="mono text-emerald-400 font-semibold">+$4,220.50</span>
+                        </div>
+                        <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 w-[72%] shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold transition-colors">策略配置</button>
+                            <button class="px-3 py-2 rounded bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all">
+                                <i class="fa-solid fa-power-off"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Mode B -->
+                <div class="glass-card p-6 border border-slate-700/50 group hover:border-purple-500/50 transition-colors">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold">AI 模式 B - 波段趨勢</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Trend Following ML</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase font-bold">Idle / Monitoring</span>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">運行口數</span>
+                            <span class="mono font-semibold">0 Units</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">當前損益</span>
+                            <span class="mono text-slate-400 font-semibold">$0.00</span>
+                        </div>
+                        <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 w-0 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold transition-colors">策略配置</button>
+                            <button class="px-3 py-2 rounded bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Mode C -->
+                <div class="glass-card p-6 border border-slate-700/50 group hover:border-amber-500/50 transition-colors">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold">AI 模式 C - 統計套利</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Statistical Arbitrage</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase font-bold">Live Running</span>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">運行口數</span>
+                            <span class="mono font-semibold">8 Units</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">當前損益</span>
+                            <span class="mono text-rose-400 font-semibold">-$840.20</span>
+                        </div>
+                        <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-500 w-[45%] shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold transition-colors">策略配置</button>
+                            <button class="px-3 py-2 rounded bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all">
+                                <i class="fa-solid fa-power-off"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Logs -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Equity Curve (Mock SVG) -->
+                <div class="glass-card p-6 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-blue-400"></i> 即時累計權益曲線 (Real-time Equity)
+                        </h3>
+                        <div class="flex gap-2">
+                            <button class="text-[10px] px-2 py-1 bg-slate-800 rounded hover:text-white transition-colors">1D</button>
+                            <button class="text-[10px] px-2 py-1 bg-blue-600 rounded text-white transition-colors">1W</button>
+                            <button class="text-[10px] px-2 py-1 bg-slate-800 rounded hover:text-white transition-colors">1M</button>
+                        </div>
+                    </div>
+                    <div class="h-[300px] w-full relative">
+                        <!-- Mock chart using SVG -->
+                        <svg viewBox="0 0 800 300" class="w-full h-full">
+                            <defs>
+                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"></stop>
+                                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,250 Q100,230 200,260 T400,180 T600,220 T800,80 L800,300 L0,300 Z" fill="url(#chartGradient)"></path>
+                            <path d="M0,250 Q100,230 200,260 T400,180 T600,220 T800,80" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round"></path>
+                            <!-- Grid lines -->
+                            <line x1="0" y1="50" x2="800" y2="50" stroke="#ffffff10" stroke-dasharray="4"></line>
+                            <line x1="0" y1="150" x2="800" y2="150" stroke="#ffffff10" stroke-dasharray="4"></line>
+                            <line x1="0" y1="250" x2="800" y2="250" stroke="#ffffff10" stroke-dasharray="4"></line>
+                        </svg>
+                        <!-- Chart Tooltip Mock -->
+                        <div class="absolute top-10 right-10 bg-slate-800/90 p-3 rounded-lg border border-slate-700 shadow-xl backdrop-blur">
+                            <div class="text-[10px] text-slate-500 uppercase font-bold">2023-10-27 Peak</div>
+                            <div class="text-sm font-bold mono">$1,268,400</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Logs -->
+                <div class="glass-card flex flex-col h-[380px] lg:h-auto">
+                    <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-amber-400"></i> 即時成交與警示日誌
+                        </h3>
+                        <i class="fa-solid fa-expand text-slate-500 cursor-pointer hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div class="flex gap-3 text-xs">
+                            <span class="text-slate-500 mono shrink-0">14:35:12</span>
+                            <span class="text-emerald-400">[TRADE]</span>
+                            <span class="text-slate-300">模式 A: BUY 4 units @ 452.12 (Fill: 100%)</span>
+                        </div>
+                        <div class="flex gap-3 text-xs">
+                            <span class="text-slate-500 mono shrink-0">14:34:55</span>
+                            <span class="text-amber-400">[SIGNAL]</span>
+                            <span class="text-slate-300">模式 C: Stochastic Oversold detected on MNQZ3</span>
+                        </div>
+                        <div class="flex gap-3 text-xs border-l-2 border-rose-500 pl-3 py-1 bg-rose-500/5">
+                            <span class="text-slate-500 mono shrink-0">14:32:01</span>
+                            <span class="text-rose-400">[ALERT]</span>
+                            <span class="text-slate-300 font-semibold">Margin Utilization > 80%! Check positions.</span>
+                        </div>
+                        <div class="flex gap-3 text-xs">
+                            <span class="text-slate-500 mono shrink-0">14:30:44</span>
+                            <span class="text-blue-400">[SYSTEM]</span>
+                            <span class="text-slate-300">Re-calculated ML parameters for Trend AI.</span>
+                        </div>
+                        <div class="flex gap-3 text-xs">
+                            <span class="text-slate-500 mono shrink-0">14:28:12</span>
+                            <span class="text-emerald-400">[TRADE]</span>
+                            <span class="text-slate-300">模式 C: SELL 2 units @ 1521.50 (Profit: +$240)</span>
+                        </div>
+                        <div class="flex gap-3 text-xs">
+                            <span class="text-slate-500 mono shrink-0">14:25:00</span>
+                            <span class="text-slate-400">[LOG]</span>
+                            <span class="text-slate-500 italic">Periodic health check: All services optimal.</span>
+                        </div>
+                        <!-- Empty items to allow scrolling -->
+                        <div class="flex gap-3 text-xs">
+                            <span class="text-slate-500 mono shrink-0">14:20:12</span>
+                            <span class="text-emerald-400">[TRADE]</span>
+                            <span class="text-slate-300">模式 A: BUY 2 units @ 450.88</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-slate-900/50 border-t border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            <span class="text-[10px] text-slate-400">Listening to WebSocket stream...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Notifications Bar -->
+            <div class="flex items-center justify-between text-xs px-2 py-1 text-slate-500 border-t border-slate-800">
+                <div class="flex items-center gap-4">
+                    <span>CPU: 12%</span>
+                    <span>MEM: 4.2GB / 16GB</span>
+                    <span>STORAGE: 88%</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-server"></i> HK-Cluster-02</span>
+                    <span class="text-blue-500 font-bold uppercase tracking-widest">Version 4.2.0-STABLE</span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Simple Navigation Logic for the prototype
+        document.querySelectorAll('[data-goto]').forEach(element => {
+            element.addEventListener('click', () => {
+                const targetId = element.getAttribute('data-goto');
+                console.log(`Navigating to ${targetId}`);
+                // In a real implementation, this would handle page transitions.
+                // For this single-file prototype, we just alert or visual feedback.
+                if (targetId !== 'p1') {
+                    alert(`Navigation to ${targetId} requested. In the full prototype, this would load the respective page.`);
+                }
+            });
+        });
+
+        // Toggle Animation Mock for Charts
+        setInterval(() => {
+            const time = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+            document.querySelector('.mono.text-sm').innerText = `2023-10-27 ${time}`;
+        }, 1000);
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+
+```
