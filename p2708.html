@@ -1,0 +1,225 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統登入 | Nexus Quant 量化交易系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bg-mesh {
+            background-color: #020617;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(210,100%,16%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,100%,10%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(180,100%,10%,1) 0, transparent 50%);
+        }
+
+        .input-focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5);
+            border-color: #38bdf8;
+        }
+
+        .trading-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 30px 30px;
+        }
+    </style>
+</head>
+<body class="h-full bg-mesh text-slate-200 overflow-hidden relative">
+
+    <!-- Decorative Background Grid -->
+    <div class="absolute inset-0 trading-pattern pointer-events-none opacity-40"></div>
+    
+    <!-- Floating Glowing Orbs -->
+    <div class="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative z-10">
+        
+        <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+            <!-- Brand Identity -->
+            <div class="inline-flex items-center justify-center space-x-3 mb-6">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-chart-line text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight text-white">
+                    Nexus <span class="text-blue-400">Quant</span>
+                </h1>
+            </div>
+            <h2 class="text-xl font-medium text-slate-400">終端交易系統登入</h2>
+            <p class="mt-2 text-sm text-slate-500">專業級量化資產管理與策略執行平台</p>
+        </div>
+
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="glass-panel py-8 px-4 shadow-2xl rounded-2xl sm:px-10">
+                <form class="space-y-6" onsubmit="return false;">
+                    <!-- Username -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-300">管理員帳號 / 電子郵件</label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-user text-slate-500"></i>
+                            </div>
+                            <input id="email" name="email" type="text" value="admin@nexus-quant.io" required
+                                class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg bg-slate-900/50 text-slate-200 placeholder-slate-500 input-focus-ring sm:text-sm transition-all duration-200"
+                                placeholder="請輸入帳號">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-300">存取密鑰</label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-lock text-slate-500"></i>
+                            </div>
+                            <input id="password" name="password" type="password" value="••••••••" required
+                                class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg bg-slate-900/50 text-slate-200 placeholder-slate-500 input-focus-ring sm:text-sm transition-all duration-200"
+                                placeholder="請輸入密碼">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button type="button" class="text-slate-500 hover:text-slate-300">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember-me" name="remember-me" type="checkbox"
+                                class="h-4 w-4 text-blue-500 focus:ring-blue-500 border-slate-700 rounded bg-slate-900">
+                            <label for="remember-me" class="ml-2 block text-sm text-slate-400">記住此裝置</label>
+                        </div>
+
+                        <div class="text-sm">
+                            <button type="button" class="font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                                忘記密鑰？
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" 
+                            data-goto="p1"
+                            class="group relative w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 shadow-lg shadow-blue-600/20 active:scale-95">
+                            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                <i class="fa-solid fa-right-to-bracket text-blue-400 group-hover:text-blue-300 transition-colors"></i>
+                            </span>
+                            安全登入終端
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Divider -->
+                <div class="mt-8">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-slate-800"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-slate-900/0 text-slate-500">多因素驗證登入</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <div>
+                            <button type="button"
+                                class="w-full inline-flex justify-center py-2 px-4 border border-slate-700 rounded-lg shadow-sm bg-slate-800/50 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">
+                                <i class="fa-solid fa-fingerprint mr-2 text-blue-400"></i>
+                                <span>Biometric</span>
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button"
+                                class="w-full inline-flex justify-center py-2 px-4 border border-slate-700 rounded-lg shadow-sm bg-slate-800/50 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">
+                                <i class="fa-solid fa-shield-halved mr-2 text-emerald-400"></i>
+                                <span>2FA Code</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-8 text-center text-xs text-slate-500 space-y-2">
+            <p>
+                <i class="fa-solid fa-lock text-emerald-500 mr-1"></i>
+                SSL 安全加密連接已啟用 (TLS 1.3)
+            </p>
+            <p>&copy; 2024 Nexus Quant Technologies. All Rights Reserved.</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <button class="hover:text-slate-300">服務條款</button>
+                <span class="text-slate-700">|</span>
+                <button class="hover:text-slate-300">隱私政策</button>
+                <span class="text-slate-700">|</span>
+                <button class="hover:text-slate-300">系統狀態</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Interaction Script (Mock Only) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup data-goto triggers
+            const clickableElements = document.querySelectorAll('[data-goto]');
+            clickableElements.forEach(el => {
+                el.addEventListener('click', () => {
+                    const targetId = el.getAttribute('data-goto');
+                    console.log(`Navigating to Page ID: ${targetId}`);
+                    // In a real prototype engine, this would trigger the page swap
+                    // For this standalone, we just alert for feedback if not p1
+                    if(targetId === 'p1') {
+                        // Normally this would be handled by the prototype container
+                        // alert('登入成功，正在跳轉至總控台...');
+                    }
+                });
+            });
+
+            // Input interactions
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.querySelector('i').classList.replace('text-slate-500', 'text-blue-400');
+                });
+                input.addEventListener('blur', () => {
+                    input.parentElement.querySelector('i').classList.replace('text-blue-400', 'text-slate-500');
+                });
+            });
+        });
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+
+```
