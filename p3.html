@@ -1,0 +1,401 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>策略開發與熱編譯 (Strategy Editor) - QuantOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .editor-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .editor-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .pulse-emerald {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-emerald 2s infinite;
+        }
+        @keyframes pulse-emerald {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#0f172a, #0f172a) padding-box,
+                        linear-gradient(to right, #3b82f6, #10b981) border-box;
+        }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-20 lg:w-64 bg-slate-950 border-r border-slate-800 flex flex-col transition-all duration-300">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <i class="fas fa-terminal text-white"></i>
+            </div>
+            <span class="font-bold text-xl hidden lg:block tracking-tight">QuantOS <span class="text-indigo-500">Pro</span></span>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <button data-goto="p1" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-chart-line w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">總控台 Dashboard</span>
+            </button>
+            <button data-goto="p2" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-database w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">數據管理 Center</span>
+            </button>
+            <button data-goto="p3" class="w-full flex items-center gap-4 px-4 py-3 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-500/20 group">
+                <i class="fas fa-code w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">策略開發 Editor</span>
+            </button>
+            <button data-goto="p4" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-briefcase w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">部位加總 Portfolio</span>
+            </button>
+            <button data-goto="p5" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-vial w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">回測引擎 Backtest</span>
+            </button>
+            <div class="pt-4 pb-2 border-t border-slate-800 my-4">
+                <p class="hidden lg:block text-xs font-semibold text-slate-500 px-4 uppercase tracking-wider">Analysis</p>
+            </div>
+            <button data-goto="p6" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-file-contract w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">績效分析 Reports</span>
+            </button>
+            <button data-goto="p8" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-brain w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">AI 監控 Pipeline</span>
+            </button>
+            <button data-goto="p9" class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-all group">
+                <i class="fas fa-cog w-5 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden lg:block font-medium">系統設定 Settings</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 p-2 bg-slate-900 rounded-lg">
+                <img src="https://picsum.photos/seed/user/40/40" class="w-8 h-8 rounded-full border border-slate-700" alt="Avatar">
+                <div class="hidden lg:block">
+                    <p class="text-xs font-bold">Dev_Admin</p>
+                    <p class="text-[10px] text-emerald-400"><i class="fas fa-circle text-[6px] mr-1"></i> Connected</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- Header / Toolbar -->
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <i class="fab fa-python text-yellow-500 text-xl"></i>
+                    <h1 class="font-bold text-lg">MeanReversion_V2.py</h1>
+                    <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">Modified 2m ago</span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800 rounded-lg p-1">
+                    <button class="px-3 py-1 text-xs font-medium rounded-md bg-indigo-600 text-white">Main Script</button>
+                    <button class="px-3 py-1 text-xs font-medium rounded-md text-slate-400 hover:bg-slate-700 transition-colors">RiskManager.py</button>
+                    <button class="px-3 py-1 text-xs font-medium rounded-md text-slate-400 hover:bg-slate-700 transition-colors">Signals.plugin</button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-800 rounded-lg text-xs border border-slate-700">
+                    <span class="text-slate-500">Target Env:</span>
+                    <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                        <i class="fas fa-bolt text-[10px]"></i> PRODUCTION
+                    </span>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button id="hot-reload-btn" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all pulse-emerald">
+                    <i class="fas fa-fire-alt"></i> 熱編譯 Hot-Reload
+                </button>
+            </div>
+        </header>
+
+        <!-- Editor Work Area -->
+        <div class="flex-1 flex overflow-hidden">
+            
+            <!-- Left Panel: Explorer & Plugins -->
+            <div class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden lg:flex">
+                <div class="p-4 border-b border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase flex items-center justify-between">
+                        Strategy Explorer
+                        <i class="fas fa-plus cursor-pointer hover:text-white"></i>
+                    </h3>
+                </div>
+                <div class="flex-1 overflow-y-auto p-2 space-y-1">
+                    <div class="p-2 bg-indigo-900/20 border-l-2 border-indigo-500 flex items-center gap-3 cursor-pointer">
+                        <i class="fas fa-folder-open text-indigo-400 text-sm"></i>
+                        <span class="text-sm font-medium">Strategies</span>
+                    </div>
+                    <div class="pl-8 p-2 flex items-center gap-3 text-slate-400 hover:text-white cursor-pointer transition-colors">
+                        <i class="fab fa-python text-blue-400 text-sm"></i>
+                        <span class="text-sm">GridTrader.py</span>
+                    </div>
+                    <div class="pl-8 p-2 flex items-center gap-3 text-white cursor-pointer transition-colors bg-slate-800/50 rounded">
+                        <i class="fab fa-python text-yellow-500 text-sm"></i>
+                        <span class="text-sm">MeanReversion_V2.py</span>
+                    </div>
+                    <div class="pl-8 p-2 flex items-center gap-3 text-slate-400 hover:text-white cursor-pointer transition-colors">
+                        <i class="fab fa-python text-blue-400 text-sm"></i>
+                        <span class="text-sm">ScalpingBot.py</span>
+                    </div>
+                    
+                    <div class="p-4 border-b border-slate-800 mt-4">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase flex items-center justify-between">
+                            Active Plugins
+                            <i class="fas fa-cog cursor-pointer hover:text-white"></i>
+                        </h3>
+                    </div>
+                    <div class="p-3 space-y-3">
+                        <div class="flex items-center justify-between p-2 bg-slate-800 rounded border border-slate-700">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-plug text-indigo-400 text-[10px]"></i>
+                                <span class="text-xs">Slack_Notifier</span>
+                            </div>
+                            <div class="w-8 h-4 bg-emerald-600 rounded-full flex items-center justify-end px-1">
+                                <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-slate-800 rounded border border-slate-700">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-plug text-indigo-400 text-[10px]"></i>
+                                <span class="text-xs">Risk_Enforcer</span>
+                            </div>
+                            <div class="w-8 h-4 bg-emerald-600 rounded-full flex items-center justify-end px-1">
+                                <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Editor -->
+            <div class="flex-1 flex flex-col bg-slate-950">
+                <!-- Editor Toolbar -->
+                <div class="h-8 bg-slate-900/50 flex items-center px-4 gap-4 text-[11px] text-slate-500 border-b border-slate-800">
+                    <span>UTF-8</span>
+                    <span>Line: 24, Col: 12</span>
+                    <span>Spaces: 4</span>
+                    <span>Python 3.10 (QuantOS-Kernel)</span>
+                </div>
+                
+                <!-- Code Area -->
+                <div class="flex-1 p-4 overflow-y-auto code-font text-sm leading-relaxed editor-container">
+                    <div class="flex gap-4">
+                        <div class="text-slate-600 text-right select-none w-8">
+                            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28
+                        </div>
+                        <div class="flex-1">
+                            <span class="text-pink-500 italic">import</span> quant_os <span class="text-pink-500 italic">as</span> qos<br>
+                            <span class="text-pink-500 italic">from</span> qos.indicators <span class="text-pink-500 italic">import</span> EMA, RSI<br>
+                            <br>
+                            <span class="text-indigo-400 italic"># Plugin: Slack_Notifier</span><br>
+                            <span class="text-pink-500">class</span> <span class="text-yellow-400">MeanReversionStrategy</span>(qos.Strategy):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-500">def</span> <span class="text-blue-400">on_init</span>(<span class="text-orange-400">self</span>):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.period = <span class="text-emerald-400">14</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.rsi = RSI(<span class="text-orange-400">self</span>.period)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-indigo-400 italic"># Initialize production parameters</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.log(<span class="text-emerald-400">"Strategy Initialized - Mode: Live"</span>)<br>
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-500">def</span> <span class="text-blue-400">on_tick</span>(<span class="text-orange-400">self</span>, tick):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsi_value = <span class="text-orange-400">self</span>.rsi.update(tick.price)<br>
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-indigo-400 italic"># Hot-Reload Logic: Update logic below without stopping</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-500">if</span> rsi_value <span class="text-pink-500">&lt;</span> <span class="text-emerald-400">30</span>:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.buy(volume=<span class="text-emerald-400">1.0</span>, price=tick.ask)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.plugins[<span class="text-emerald-400">'Slack'</span>].notify(<span class="text-emerald-400">"Oversold detected"</span>)<br>
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-500">elif</span> rsi_value <span class="text-pink-500">></span> <span class="text-emerald-400">70</span>:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.sell(volume=<span class="text-emerald-400">1.0</span>, price=tick.bid)<br>
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-500">def</span> <span class="text-blue-400">on_hot_reload</span>(<span class="text-orange-400">self</span>):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.log(<span class="text-emerald-400">"Hot-Reload Triggered: Logic Updated"</span>)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-orange-400">self</span>.sync_state()<br>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Panel: Console -->
+                <div class="h-48 bg-slate-900 border-t border-slate-800 flex flex-col">
+                    <div class="h-8 flex items-center px-4 bg-slate-800/50 gap-4">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b-2 border-indigo-500 h-full flex items-center">Terminal Output</span>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest h-full flex items-center cursor-pointer hover:text-slate-300">Errors (0)</span>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest h-full flex items-center cursor-pointer hover:text-slate-300">Live Logs</span>
+                    </div>
+                    <div id="console-output" class="flex-1 p-4 code-font text-xs overflow-y-auto bg-black/30">
+                        <p class="text-slate-500">[14:22:01] System: IDE Ready.</p>
+                        <p class="text-slate-500">[14:22:05] Context: Connected to Binance-USDT Feed.</p>
+                        <p class="text-emerald-400">[14:23:45] Compiled: MeanReversion_V2.py successfully validated (Syntax OK).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: State Inspector -->
+            <div class="w-72 bg-slate-900 border-l border-slate-800 flex flex-col hidden xl:flex">
+                <div class="p-4 border-b border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase">Live State Inspector</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="bg-slate-800 rounded-lg p-3">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold mb-2">Current Variables (Live)</p>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">self.rsi_value</span>
+                                <span class="text-emerald-400 font-bold">42.56</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">self.exposure</span>
+                                <span class="text-indigo-400 font-bold">0.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">latency_ms</span>
+                                <span class="text-amber-400 font-bold">12ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-lg p-3">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold mb-2">Strategy Metrics</p>
+                        <div class="h-16 w-full flex items-end gap-1 px-1">
+                            <div class="w-full bg-indigo-500/40 rounded-t h-[30%]"></div>
+                            <div class="w-full bg-indigo-500/40 rounded-t h-[45%]"></div>
+                            <div class="w-full bg-indigo-500/40 rounded-t h-[60%]"></div>
+                            <div class="w-full bg-indigo-500/40 rounded-t h-[80%]"></div>
+                            <div class="w-full bg-indigo-500/40 rounded-t h-[50%]"></div>
+                            <div class="w-full bg-indigo-500 rounded-t h-[95%]"></div>
+                        </div>
+                        <p class="text-center text-[10px] text-slate-500 mt-2">Instruction Cycles / s</p>
+                    </div>
+
+                    <div class="border border-indigo-500/30 rounded-lg p-3 bg-indigo-500/5">
+                        <p class="text-[10px] text-indigo-400 uppercase font-bold mb-2 flex items-center gap-1">
+                            <i class="fas fa-info-circle"></i> Hot-Reload Hint
+                        </p>
+                        <p class="text-[10px] text-slate-400 leading-relaxed">
+                            熱編譯功能會保留目前的 <code>__dict__</code> 狀態，僅動態替換 <code>on_tick</code> 與 <code>on_signal</code> 邏輯，確保交易部位不遺失。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Hot-Reload Notification Overlay (Hidden by default) -->
+    <div id="reload-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-emerald-500/50 p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-sync-alt fa-spin text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-bold mb-2">熱編譯進行中...</h2>
+            <p class="text-slate-400 text-sm mb-6">正在注入新代碼至生產環境，維持執行緒狀態...</p>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full w-0" id="reload-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation Logic
+        document.querySelectorAll('[data-goto]').forEach(element => {
+            element.addEventListener('click', () => {
+                const targetId = element.getAttribute('data-goto');
+                console.log(`Navigating to ${targetId}`);
+                // In a real prototype, this would change the window.location or handle routing
+                // For this demo, we'll just alert or console log
+                alert('Navigation to Page ID: ' + targetId);
+            });
+        });
+
+        // Hot-Reload Simulation
+        const hotReloadBtn = document.getElementById('hot-reload-btn');
+        const overlay = document.getElementById('reload-overlay');
+        const progress = document.getElementById('reload-progress');
+        const consoleOutput = document.getElementById('console-output');
+
+        hotReloadBtn.addEventListener('click', () => {
+            // Show overlay
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            
+            // Animate progress bar
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 5;
+                progress.style.width = width + '%';
+                if (width >= 100) {
+                    clearInterval(interval);
+                    
+                    // Finalize
+                    setTimeout(() => {
+                        overlay.classList.remove('opacity-100');
+                        setTimeout(() => {
+                            overlay.classList.add('hidden');
+                            progress.style.width = '0%';
+                            
+                            // Log to console
+                            const log = document.createElement('p');
+                            log.className = 'text-white font-bold mt-2';
+                            log.innerHTML = `<span class="text-emerald-400">[${new Date().toLocaleTimeString()}]</span> SUCCESS: Strategy logic hot-swapped. Live state preserved.`;
+                            consoleOutput.appendChild(log);
+                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        }, 300);
+                    }, 500);
+                }
+            }, 50);
+        });
+
+        // Keyboard Shortcut Simulation (Ctrl+S)
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                const log = document.createElement('p');
+                log.className = 'text-slate-500';
+                log.innerHTML = `[${new Date().toLocaleTimeString()}] File saved locally.`;
+                consoleOutput.appendChild(log);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+        });
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+
+```
