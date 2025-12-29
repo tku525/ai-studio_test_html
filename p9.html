@@ -1,0 +1,367 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統設定與 API 配置 - UniTrade Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-item { transition: all 0.2s; cursor: pointer; }
+        .sidebar-item:hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .sidebar-active { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border-right: 3px solid #3b82f6; }
+        input[type="password"]:focus, input[type="text"]:focus, select:focus { outline: none; border-color: #3b82f6; ring: 2px solid rgba(59, 130, 246, 0.2); }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .gradient-border { border: 1px solid; border-image: linear-gradient(to right, #3b82f6, #8b5cf6) 1; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 glass-panel border-r border-slate-800 flex flex-col z-50">
+        <div class="p-6">
+            <div class="flex items-center gap-3 text-blue-500 font-bold text-xl">
+                <i class="fa-solid fa-microchip text-2xl"></i>
+                <span>UniTrade Pro</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto px-4 space-y-2">
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">交易控制</div>
+            <div data-goto="p1" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-chart-line w-5"></i> 總控台
+            </div>
+            <div data-goto="p2" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-database w-5"></i> 數據管理
+            </div>
+            <div data-goto="p4" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-layer-group w-5"></i> 部位同步
+            </div>
+
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2 px-2">研發中心</div>
+            <div data-goto="p3" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-code w-5"></i> 策略編譯
+            </div>
+            <div data-goto="p5" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-flask w-5"></i> 回測引擎
+            </div>
+            <div data-goto="p7" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-vial-circle-check w-5"></i> 最佳化實驗室
+            </div>
+
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2 px-2">智能分析</div>
+            <div data-goto="p8" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-robot w-5"></i> AI 流水線
+            </div>
+            <div data-goto="p6" class="sidebar-item p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-file-contract w-5"></i> 績效報告
+            </div>
+
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2 px-2">配置</div>
+            <div data-goto="p9" class="sidebar-active p-3 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-gears w-5"></i> 系統設定
+            </div>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 p-2 bg-slate-800/50 rounded-lg">
+                <img src="https://picsum.photos/seed/user/40/40" class="rounded-full" alt="avatar">
+                <div class="text-xs">
+                    <p class="font-bold">Admin Account</p>
+                    <p class="text-slate-400">Pro License</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-slate-950 p-8">
+        <!-- Top Header -->
+        <header class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-3xl font-bold">系統設定與 API 配置</h1>
+                <p class="text-slate-400 mt-1">管理您的量化核心、AI 推理服務以及全局風控閾值</p>
+            </div>
+            <div class="flex gap-3">
+                <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center gap-2 transition border border-slate-700">
+                    <i class="fa-solid fa-rotate"></i> 重置變更
+                </button>
+                <button class="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg flex items-center gap-2 transition shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-floppy-disk"></i> 儲存所有設定
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-12 gap-8">
+            
+            <!-- Left Column: Core API Settings -->
+            <div class="col-span-12 lg:col-span-8 space-y-8">
+                
+                <!-- unitradeAPI Config -->
+                <section class="glass-panel rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                <i class="fa-solid fa-plug text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-semibold">unitradeAPI 交易核心連線</h2>
+                        </div>
+                        <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs rounded-full border border-green-500/20 flex items-center gap-2">
+                            <span class="status-dot bg-green-500"></span> 已連線
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-slate-400">API Key</label>
+                            <input type="password" value="ut_8832_live_xk9293k01jdm3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-slate-400">API Secret</label>
+                            <input type="password" value="************************" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-slate-400">主機端點 (Endpoint)</label>
+                            <select class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200">
+                                <option>https://api.unitrade.ai/v2/prod</option>
+                                <option>https://api.unitrade.ai/v2/sandbox</option>
+                                <option>Local Node (127.0.0.1:8080)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-slate-400">WebSocket 埠口</label>
+                            <input type="text" value="8443" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200">
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-slate-900/50 rounded-lg border border-slate-800 flex justify-between items-center text-sm">
+                        <span class="text-slate-400"><i class="fa-solid fa-circle-info mr-2"></i> 上次測試連線：2023-10-27 14:20:11 (延遲 12ms)</span>
+                        <button class="text-blue-500 hover:text-blue-400 font-medium">測試連線</button>
+                    </div>
+                </section>
+
+                <!-- AI Models Configuration -->
+                <section class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+                            <i class="fa-solid fa-brain text-xl"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold">AI 模型與大語言模型 (LLM) 配置</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- GPT Config -->
+                        <div class="p-4 border border-slate-800 rounded-xl hover:border-slate-700 transition">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-cloud-bolt text-green-500 text-lg"></i>
+                                    <div>
+                                        <h3 class="font-medium text-slate-200">OpenAI GPT-4 / GPT-3.5</h3>
+                                        <p class="text-xs text-slate-500 text-ellipsis">用於深度情緒分析與市場趨勢總結</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-500">啟用服務</span>
+                                    <div class="w-10 h-5 bg-blue-600 rounded-full relative">
+                                        <div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="password" placeholder="sk-..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-300 mb-2">
+                        </div>
+
+                        <!-- Llama Config -->
+                        <div class="p-4 border border-slate-800 rounded-xl hover:border-slate-700 transition">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-server text-orange-500 text-lg"></i>
+                                    <div>
+                                        <h3 class="font-medium text-slate-200">Local Llama-2 / Llama-3 (Ollama)</h3>
+                                        <p class="text-xs text-slate-500 text-ellipsis">用於本地低延遲私有推理</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-500">啟用服務</span>
+                                    <div class="w-10 h-5 bg-slate-700 rounded-full relative">
+                                        <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" value="http://localhost:11434" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-300">
+                                <select class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-300">
+                                    <option>llama3:7b-instruct</option>
+                                    <option>mistral:latest</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Claude Config -->
+                        <div class="p-4 border border-slate-800 rounded-xl hover:border-slate-700 transition opacity-50">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-feather text-slate-400 text-lg"></i>
+                                    <div>
+                                        <h3 class="font-medium text-slate-400">Anthropic Claude 3</h3>
+                                        <p class="text-xs text-slate-600">未配置 API 金鑰</p>
+                                    </div>
+                                </div>
+                                <button class="text-xs text-blue-500 border border-blue-500/30 px-3 py-1 rounded-md hover:bg-blue-500/10">立即配置</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Risk & Maintenance -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                
+                <!-- Risk Limits -->
+                <section class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-red-500/10 rounded-lg text-red-500">
+                            <i class="fa-solid fa-shield-halved text-xl"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold">全局風險上限設定</h2>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <label class="text-slate-400">帳戶最大總回撤 (Equity Drawdown)</label>
+                                <span class="text-red-400 font-bold">12.0%</span>
+                            </div>
+                            <input type="range" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <label class="text-slate-400">單筆策略最大槓桿</label>
+                                <span class="text-blue-400 font-bold">5.0x</span>
+                            </div>
+                            <input type="range" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-800 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-300">強制平倉熔斷開關</span>
+                                <div class="w-12 h-6 bg-red-600 rounded-full relative">
+                                    <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-300">盤前預檢 (Pre-trade Check)</span>
+                                <div class="w-12 h-6 bg-blue-600 rounded-full relative">
+                                    <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-red-500/5 border border-red-500/20 rounded-lg text-xs text-red-400">
+                            <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                            警告：當帳戶回撤觸發上限時，系統將自動取消所有掛單並進入「僅清算」模式。
+                        </div>
+                    </div>
+                </section>
+
+                <!-- System Backup -->
+                <section class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
+                            <i class="fa-solid fa-box-archive text-xl"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold">系統備份與還原</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <button class="flex flex-col items-center justify-center p-4 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-download mb-2 text-blue-400"></i>
+                            <span class="text-xs">匯出設定</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-4 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-upload mb-2 text-purple-400"></i>
+                            <span class="text-xs">還原設定</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">上次雲端備份時間</span>
+                            <span class="text-slate-300">2 小時前</span>
+                        </div>
+                        <button class="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition">
+                            立即備份至資料庫
+                        </button>
+                    </div>
+                </section>
+
+                <!-- System Logs Preview -->
+                <section class="glass-panel rounded-2xl p-6 overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-semibold text-slate-400">系統即時日誌</h3>
+                        <i class="fa-solid fa-list-ul text-slate-600"></i>
+                    </div>
+                    <div class="bg-black/40 rounded-lg p-3 font-mono text-[10px] space-y-1 h-32 overflow-y-auto">
+                        <p class="text-slate-500">[14:30:12] <span class="text-green-500">INFO:</span> Connected to unitrade-node-01</p>
+                        <p class="text-slate-500">[14:30:15] <span class="text-blue-500">AI:</span> GPT-4 context window validated</p>
+                        <p class="text-slate-500">[14:31:02] <span class="text-yellow-500">WARN:</span> High latency on Ollama (400ms)</p>
+                        <p class="text-slate-500">[14:35:55] <span class="text-green-500">INFO:</span> Risk parameters updated by UI</p>
+                        <p class="text-slate-500">[14:40:01] <span class="text-slate-400">SYS:</span> DB heartbeat check OK</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <footer class="mt-12 text-center text-slate-600 text-xs">
+            UniTrade Pro v4.2.0-stable | Build 20231027 | <span class="text-blue-500 cursor-pointer">隱私協議與服務條款</span>
+        </footer>
+    </main>
+
+    <script>
+        // UI Interaction for navigation
+        document.querySelectorAll('[data-goto]').forEach(element => {
+            element.addEventListener('click', () => {
+                const targetId = element.getAttribute('data-goto');
+                console.log(`Navigating to ${targetId}...`);
+                // In a real app, this would change the view or URL
+                // For the prototype, we can show a mock transition
+                document.body.style.opacity = '0.5';
+                setTimeout(() => {
+                    document.body.style.opacity = '1';
+                }, 100);
+            });
+        });
+
+        // Toggle Password Visibility (Simulated)
+        document.querySelectorAll('input[type="password"]').forEach(input => {
+            input.addEventListener('dblclick', function() {
+                this.type = this.type === 'password' ? 'text' : 'password';
+            });
+        });
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+
+```
