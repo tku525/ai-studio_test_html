@@ -1,0 +1,482 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 決策流水線監控 | AI Decision Pipeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .font-mono-custom {
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .pipeline-gradient {
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+
+        .glow-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+        .glow-purple { box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+        .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(34, 197, 94, 0.1);
+            position: absolute;
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .node-connector {
+            position: relative;
+        }
+        .node-connector::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -2rem;
+            width: 2rem;
+            height: 2px;
+            background: #334155;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                    <i class="fas fa-microchip text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">AI 決策流水線 <span class="text-indigo-400 font-mono text-sm ml-2">v4.2-PRO</span></h1>
+                    <p class="text-xs text-slate-400">系統 ID: p8 | 深度神經決策監控中</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-xs font-medium text-slate-300">下次觸發: 03:42</span>
+                </div>
+                <button data-goto="p1" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fas fa-th-large text-xl"></i>
+                </button>
+                <button data-goto="p9" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fas fa-cog text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto p-6 space-y-6">
+        
+        <!-- Pipeline Flow Visualization -->
+        <section class="bg-slate-900/40 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4">
+                <span class="text-[10rem] font-bold text-slate-800/10 select-none">PIPELINE</span>
+            </div>
+            
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-10">
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <i class="fas fa-project-diagram text-indigo-400"></i>
+                        現行協作工作流 (4-LLM Architecture)
+                    </h2>
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs rounded-full uppercase tracking-widest">Active Cycle</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                    <!-- Step 1: Groq -->
+                    <div class="relative group">
+                        <div class="bg-slate-800/80 border-2 border-slate-700 p-5 rounded-xl transition-all group-hover:border-blue-500 group-hover:glow-blue">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-bold text-blue-400 uppercase tracking-tighter">Market Analysis</span>
+                                <i class="fas fa-bolt text-blue-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Groq (Llama-3-70B)</h3>
+                            <p class="text-xs text-slate-400 mb-4 italic">Ultra-low latency inference</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] text-slate-500 uppercase">
+                                    <span>Latency</span>
+                                    <span class="text-blue-400">182ms</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-blue-500 h-full w-[95%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-slate-700 z-0">
+                            <i class="fas fa-chevron-right text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: GPT-4o -->
+                    <div class="relative group">
+                        <div class="bg-slate-800/80 border-2 border-slate-700 p-5 rounded-xl transition-all group-hover:border-emerald-500 group-hover:glow-green">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-tighter">News & Sentiment</span>
+                                <i class="fas fa-newspaper text-emerald-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">OpenAI GPT-4o</h3>
+                            <p class="text-xs text-slate-400 mb-4 italic">Multimodal context analysis</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] text-slate-500 uppercase">
+                                    <span>Confidence</span>
+                                    <span class="text-emerald-400">89%</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-emerald-500 h-full w-[89%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-slate-700 z-0">
+                            <i class="fas fa-chevron-right text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Gemini -->
+                    <div class="relative group">
+                        <div class="bg-slate-800/80 border-2 border-slate-700 p-5 rounded-xl transition-all group-hover:border-purple-500 group-hover:glow-purple">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-bold text-purple-400 uppercase tracking-tighter">Risk Control</span>
+                                <i class="fas fa-shield-halved text-purple-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Google Gemini 1.5</h3>
+                            <p class="text-xs text-slate-400 mb-4 italic">Long-context compliance</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] text-slate-500 uppercase">
+                                    <span>Tokens In</span>
+                                    <span class="text-purple-400">1.2M Max</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-purple-500 h-full w-[65%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-slate-700 z-0">
+                            <i class="fas fa-chevron-right text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Llama-405B -->
+                    <div class="relative group">
+                        <div class="bg-indigo-950/40 border-2 border-indigo-500 p-5 rounded-xl transition-all glow-blue">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-bold text-indigo-300 uppercase tracking-tighter">Final Decision</span>
+                                <i class="fas fa-crown text-indigo-400 animate-bounce"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Llama-3 405B</h3>
+                            <p class="text-xs text-slate-400 mb-4 italic">The Ultimate Arbiter</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] text-slate-500 uppercase">
+                                    <span>Processing...</span>
+                                    <span class="text-indigo-400">Wait</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-indigo-500 h-full w-[42%] animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Real-time Inference Logs -->
+            <div class="lg:col-span-2 bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden flex flex-col min-h-[500px]">
+                <div class="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center">
+                    <h3 class="text-sm font-bold flex items-center gap-2 uppercase tracking-wider">
+                        <i class="fas fa-terminal text-green-400"></i>
+                        即時推論日誌 (Real-time Reasoning Logs)
+                    </h3>
+                    <div class="flex gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500/30"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/30"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500/30"></div>
+                    </div>
+                </div>
+                <div class="p-4 font-mono text-xs space-y-3 overflow-y-auto flex-1 bg-black/40 relative">
+                    <div class="scanline"></div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:01]</span>
+                        <span class="text-blue-400 font-bold">[GROQ]</span>
+                        <span class="text-slate-300">接收行情數據：BTC/USDT, 價格: 64,231.50, 波動率: 1.2%.</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:02]</span>
+                        <span class="text-blue-400 font-bold">[GROQ]</span>
+                        <span class="text-slate-300">形態識別：檢測到 15m 週期下降三角形突破。建議權重: +0.65</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:05]</span>
+                        <span class="text-emerald-400 font-bold">[GPT4o]</span>
+                        <span class="text-slate-300">掃描新聞來源：Reuters, Bloomberg... 檢測到 SEC 關鍵聲明草案。</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:06]</span>
+                        <span class="text-emerald-400 font-bold">[GPT4o]</span>
+                        <span class="text-slate-300 text-emerald-300">情緒評分：78 (Positive). 市場對 CPI 數據解讀偏向利多。</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:10]</span>
+                        <span class="text-purple-400 font-bold">[GEMINI]</span>
+                        <span class="text-slate-300">執行風控評估：當前槓桿率 3.5x, 最大回撤限制 2.0%.</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:12]</span>
+                        <span class="text-purple-400 font-bold">[GEMINI]</span>
+                        <span class="text-amber-400">警告：流動性深度低於閾值 (Node 4). 建議調整成交滑點容忍度至 0.5%.</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-slate-600">[14:50:15]</span>
+                        <span class="text-indigo-400 font-bold">[LLAMA]</span>
+                        <span class="text-indigo-200">正在聚合決策矩陣 (GROQ: 0.3, GPT: 0.4, GEMINI: 0.3)...</span>
+                    </div>
+                    <div class="flex gap-4 animate-pulse">
+                        <span class="text-slate-600">[14:50:18]</span>
+                        <span class="text-indigo-400 font-bold">[LLAMA]</span>
+                        <span class="text-indigo-300">思考中：考慮宏觀流動性與微觀結構的不匹配性...</span>
+                    </div>
+                    <div class="border-l-2 border-indigo-500 pl-4 py-1 mt-4 bg-indigo-500/5">
+                        <p class="text-indigo-300 font-bold">系統推理中: 思維鏈 (Chain-of-Thought)...</p>
+                        <p class="text-slate-400 mt-1 italic">"雖然 GPT-4o 情緒樂觀，但 Groq 提供的 OrderBook 資料顯示上方賣壓沉重。Gemini 指出的流動性風險不可忽視。我將權衡偏向防守型進場..."</p>
+                    </div>
+                </div>
+                <div class="p-3 bg-slate-900/80 border-t border-slate-800 flex items-center gap-4">
+                    <input type="text" placeholder="輸入指令對特定 LLM 進行 Debug..." class="bg-black/40 border border-slate-700 rounded-lg px-4 py-2 text-xs flex-1 outline-none focus:border-indigo-500 transition-all">
+                    <button class="bg-slate-800 hover:bg-slate-700 text-xs px-4 py-2 rounded-lg transition-colors">發送指令</button>
+                </div>
+            </div>
+
+            <!-- Decision Weights & Stats -->
+            <div class="space-y-6">
+                <!-- Weight Analysis -->
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-sm font-bold mb-6 uppercase tracking-wider flex items-center justify-between">
+                        決策權重分配 (Weighting)
+                        <i class="fas fa-chart-pie text-slate-500"></i>
+                    </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-slate-400">Groq (行情技術)</span>
+                                <span class="text-white font-mono">30%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full">
+                                <div class="bg-blue-500 h-full rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-slate-400">GPT-4o (情緒與事件)</span>
+                                <span class="text-white font-mono">40%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 40%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-slate-400">Gemini (風險與邊界)</span>
+                                <span class="text-white font-mono">30%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full">
+                                <div class="bg-purple-500 h-full rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-800">
+                        <div class="text-center">
+                            <span class="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">最終信心值</span>
+                            <span class="text-4xl font-bold font-mono-custom text-indigo-400 tracking-tighter">72.4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Triggers List -->
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-sm font-bold mb-4 uppercase tracking-wider">最近決策歷史</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+                            <div>
+                                <p class="text-xs font-bold">14:45:00 <span class="text-slate-500 font-normal">Cycle #892</span></p>
+                                <p class="text-[10px] text-slate-400">核心決策: 保持觀望</p>
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300">HOLD</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-green-500/5 border border-green-500/20">
+                            <div>
+                                <p class="text-xs font-bold">14:40:00 <span class="text-slate-500 font-normal">Cycle #891</span></p>
+                                <p class="text-[10px] text-slate-400">核心決策: 多單進場 (2%)</p>
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">BUY</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+                            <div>
+                                <p class="text-xs font-bold">14:35:00 <span class="text-slate-500 font-normal">Cycle #890</span></p>
+                                <p class="text-[10px] text-slate-400">核心決策: 保持觀望</p>
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300">HOLD</span>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 text-[10px] text-slate-500 hover:text-indigo-400 uppercase tracking-widest transition-colors">
+                        查看完整歷史 <i class="fas fa-external-link-alt ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Architecture Metadata -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl">
+                <p class="text-[10px] text-slate-500 uppercase mb-1">API 平均回應時間</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-2xl font-bold font-mono">1.24s</span>
+                    <span class="text-xs text-green-500 mb-1"><i class="fas fa-caret-down"></i> 4%</span>
+                </div>
+            </div>
+            <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl">
+                <p class="text-[10px] text-slate-500 uppercase mb-1">Token 消耗 (24h)</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-2xl font-bold font-mono">4.8M</span>
+                    <span class="text-xs text-slate-400 mb-1">~ $142.2</span>
+                </div>
+            </div>
+            <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl">
+                <p class="text-[10px] text-slate-500 uppercase mb-1">決策相關係數 (Accuracy)</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-2xl font-bold font-mono">0.68</span>
+                    <span class="text-xs text-indigo-400 mb-1">Optimal</span>
+                </div>
+            </div>
+            <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl">
+                <p class="text-[10px] text-slate-500 uppercase mb-1">伺服器負載 (H100 Clusters)</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-2xl font-bold font-mono">18.5%</span>
+                    <span class="text-xs text-slate-400 mb-1">Idle</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigation Overlay (Fixed Bottom) -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 px-6 py-3 rounded-full flex items-center gap-8 shadow-2xl z-50">
+        <button data-goto="p1" class="group flex flex-col items-center gap-1">
+            <i class="fas fa-chart-line text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
+            <span class="text-[10px] uppercase text-slate-500 group-hover:text-indigo-400">總控</span>
+        </button>
+        <button data-goto="p3" class="group flex flex-col items-center gap-1">
+            <i class="fas fa-code text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
+            <span class="text-[10px] uppercase text-slate-500 group-hover:text-indigo-400">策略</span>
+        </button>
+        <button data-goto="p8" class="group flex flex-col items-center gap-1">
+            <i class="fas fa-brain text-indigo-400 transition-colors"></i>
+            <span class="text-[10px] uppercase text-indigo-400">AI監控</span>
+        </button>
+        <div class="w-px h-6 bg-slate-700 mx-2"></div>
+        <button data-goto="p4" class="group flex flex-col items-center gap-1">
+            <i class="fas fa-wallet text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
+            <span class="text-[10px] uppercase text-slate-500 group-hover:text-indigo-400">部位</span>
+        </button>
+        <button data-goto="p5" class="group flex flex-col items-center gap-1">
+            <i class="fas fa-vial text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
+            <span class="text-[10px] uppercase text-slate-500 group-hover:text-indigo-400">回測</span>
+        </button>
+    </nav>
+
+    <!-- Notification Toast (Mockup) -->
+    <div class="fixed top-20 right-6 z-50 animate-bounce cursor-pointer" id="notification">
+        <div class="bg-indigo-600/90 backdrop-blur text-white px-4 py-3 rounded-lg shadow-lg border border-indigo-400 flex items-center gap-3">
+            <i class="fas fa-sync-alt animate-spin"></i>
+            <div>
+                <p class="text-xs font-bold">Llama-405B 正在生成最終決策...</p>
+                <p class="text-[10px] opacity-80">ETA: 4s</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation system
+        document.querySelectorAll('[data-goto]').forEach(element => {
+            element.addEventListener('click', () => {
+                const targetId = element.getAttribute('data-goto');
+                console.log(`Navigating to ${targetId}...`);
+                // In a real prototype, this would switch views or window.location
+                // For this demo, we'll just flash the screen
+                document.body.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.style.opacity = '1';
+                    alert(`模擬導航至頁面: ${targetId}`);
+                }, 300);
+            });
+        });
+
+        // Add some dynamic feeling to logs
+        const logContainer = document.querySelector('.p-4.font-mono.text-xs');
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                const div = document.createElement('div');
+                div.className = 'flex gap-4 animate-pulse';
+                const now = new Date();
+                const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+                div.innerHTML = `<span class="text-slate-600">[${time}]</span> <span class="text-indigo-400 font-bold">[SYSTEM]</span> <span class="text-slate-400 italic">正在注入新的外部訊號源...</span>`;
+                logContainer.appendChild(div);
+                logContainer.scrollTop = logContainer.scrollHeight;
+                
+                if (logContainer.children.length > 20) {
+                    logContainer.removeChild(logContainer.children[2]); // Keep it manageable
+                }
+            }
+        }, 4000);
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+
+```
