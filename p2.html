@@ -1,0 +1,526 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數據管理中心 (QuoteManager) - QuantFlow Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --text-primary: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+        }
+
+        .status-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .5; transform: scale(1.1); }
+        }
+
+        .progress-bar-glow {
+            box-shadow: 0 0 8px var(--accent-blue);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-slate-800 bg-slate-900/50 flex-shrink-0 hidden lg:flex flex-col">
+        <div class="p-6">
+            <div class="flex items-center gap-3 text-blue-400 font-bold text-xl mb-8">
+                <i class="fas fa-microchip text-2xl"></i>
+                <span>QuantFlow<span class="text-white">Pro</span></span>
+            </div>
+            
+            <nav class="space-y-1">
+                <button data-goto="p1" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>總控台 Dashboard</span>
+                </button>
+                <button data-goto="p2" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600/20 text-blue-400 rounded-lg transition-all duration-200">
+                    <i class="fas fa-database w-5"></i>
+                    <span>數據管理 QuoteManager</span>
+                </button>
+                <button data-goto="p3" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200">
+                    <i class="fas fa-code w-5"></i>
+                    <span>策略開發 Editor</span>
+                </button>
+                <button data-goto="p4" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200">
+                    <i class="fas fa-briefcase w-5"></i>
+                    <span>部位同步 Portfolio</span>
+                </button>
+                <button data-goto="p5" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200">
+                    <i class="fas fa-vial w-5"></i>
+                    <span>回測引擎 Backtest</span>
+                </button>
+                <div class="pt-4 pb-2 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Analysis & AI</div>
+                <button data-goto="p8" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200">
+                    <i class="fas fa-brain w-5"></i>
+                    <span>AI 決策流水線</span>
+                </button>
+                <button data-goto="p9" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>系統設定 Settings</span>
+                </button>
+            </nav>
+        </div>
+        
+        <div class="mt-auto p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 p-3 glass-panel">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs">AD</div>
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-xs font-medium truncate">Admin Console</p>
+                    <p class="text-[10px] text-slate-500 truncate">System V4.2.1-stable</p>
+                </div>
+                <i class="fas fa-external-link-alt text-[10px] text-slate-500"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- Header -->
+        <header class="h-16 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between px-8 shrink-0">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-bold tracking-tight">數據管理中心 <span class="text-slate-500 font-normal text-sm ml-2 mono">QuoteManager v2.4</span></h1>
+                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full status-pulse"></span>
+                    <span class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Live Market Stream</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] text-slate-500 uppercase tracking-tighter">Database Storage</span>
+                    <span class="text-sm font-semibold mono">1.42 TB / 4.00 TB</span>
+                </div>
+                <div class="w-32 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500" style="width: 35.5%"></div>
+                </div>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-blue-900/20">
+                    <i class="fas fa-sync-alt mr-2"></i>強制全局重校
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            
+            <!-- Cleaning Progress Grid -->
+            <section>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <i class="fas fa-broom text-blue-400"></i>
+                        多週期數據清洗進度 (Tick to Daily)
+                    </h2>
+                    <span class="text-sm text-slate-400">當前同步標的: 24 對</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Symbol Card 1 -->
+                    <div class="glass-panel p-4 hover:border-blue-500/50 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight">BTCUSDT</h3>
+                                <p class="text-xs text-slate-500 mono">Binance Futures</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[10px] rounded border border-blue-500/20 font-bold">ACTIVE</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="text-slate-400 uppercase">Tick Cleaning</span>
+                                    <span class="mono text-emerald-400">100%</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full">
+                                    <div class="h-full bg-emerald-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="text-slate-400 uppercase">1m Aggregate</span>
+                                    <span class="mono text-emerald-400">100%</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full">
+                                    <div class="h-full bg-emerald-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="text-slate-400 uppercase">1h / 4h Resample</span>
+                                    <span class="mono text-blue-400">82%</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full">
+                                    <div class="h-full bg-blue-500 progress-bar-glow rounded-full" style="width: 82%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px]">
+                            <span class="text-slate-500"><i class="far fa-clock mr-1"></i>Last Update: 2s ago</span>
+                            <button class="text-blue-400 hover:text-blue-300">檢視細節 <i class="fas fa-chevron-right ml-1"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Symbol Card 2 -->
+                    <div class="glass-panel p-4 hover:border-amber-500/50 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight">ETHUSDT</h3>
+                                <p class="text-xs text-slate-500 mono">Binance Futures</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20 font-bold">PATCHING GAPS</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="text-slate-400 uppercase">Tick Cleaning</span>
+                                    <span class="mono text-amber-400">94%</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-amber-500 rounded-full" style="width: 94%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="text-slate-400 uppercase">1m Aggregate</span>
+                                    <span class="mono text-slate-600">WAITING</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full">
+                                    <div class="h-full bg-slate-700 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1 text-slate-600 uppercase">
+                                    <span>1h / 4h Resample</span>
+                                    <span>-</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px]">
+                            <span class="text-amber-500"><i class="fas fa-exclamation-triangle mr-1"></i>Detecting 1.4s Gap</span>
+                            <button class="text-blue-400 hover:text-blue-300">啟動自動補洞</button>
+                        </div>
+                    </div>
+
+                    <!-- Symbol Card 3 -->
+                    <div class="glass-panel p-4 hover:border-blue-500/50 transition-colors opacity-80">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg leading-tight text-slate-400">SOLUSDT</h3>
+                                <p class="text-xs text-slate-500 mono">OKX Futures</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-slate-500/10 text-slate-400 text-[10px] rounded border border-slate-500/20 font-bold">PAUSED</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="text-slate-500 uppercase">Tick Cleaning</span>
+                                    <span class="mono text-slate-500">32%</span>
+                                </div>
+                                <div class="w-full h-1 bg-slate-800 rounded-full">
+                                    <div class="h-full bg-slate-600 rounded-full" style="width: 32%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center py-4">
+                                <button class="text-[10px] px-3 py-1 border border-slate-700 rounded hover:bg-slate-800 transition-colors">
+                                    <i class="fas fa-play mr-1"></i> 恢復同步
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px]">
+                            <span class="text-slate-600">Stopped by System Admin</span>
+                            <span class="text-slate-600">Total: 4.2GB</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom Sections: Gap Logs & AI Features -->
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                
+                <!-- Left: Gap Monitoring & K-Line History -->
+                <div class="xl:col-span-4 space-y-6">
+                    <div class="glass-panel flex flex-col h-full">
+                        <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                            <h3 class="font-bold text-sm flex items-center gap-2">
+                                <i class="fas fa-shield-virus text-amber-500"></i> 斷線補洞監控
+                            </h3>
+                            <span class="text-[10px] bg-amber-500/20 text-amber-500 px-2 rounded-full">Live Monitor</span>
+                        </div>
+                        <div class="flex-1 p-4 space-y-4 max-h-[400px] overflow-y-auto">
+                            <!-- Gap Entry 1 -->
+                            <div class="p-3 bg-slate-800/40 rounded border-l-2 border-emerald-500">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-[10px] font-bold text-slate-300">SOLUSDT <span class="text-slate-500 font-normal">@ Binance</span></span>
+                                    <span class="text-[10px] text-emerald-400 mono">FIXED</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Gap detected: 14:02:11 - 14:02:45 (34s)</p>
+                                <p class="text-[10px] text-slate-500 mt-1 italic">Source: REST API Snapshot Recovery Success</p>
+                            </div>
+                            <!-- Gap Entry 2 -->
+                            <div class="p-3 bg-slate-800/40 rounded border-l-2 border-emerald-500">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-[10px] font-bold text-slate-300">ADAUSDT <span class="text-slate-500 font-normal">@ Bybit</span></span>
+                                    <span class="text-[10px] text-emerald-400 mono">FIXED</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Gap detected: 13:55:00 - 13:58:12 (192s)</p>
+                                <p class="text-[10px] text-slate-500 mt-1 italic">Source: Multi-node Sync Recovery Success</p>
+                            </div>
+                            <!-- Gap Entry 3 -->
+                            <div class="p-3 bg-slate-800/40 rounded border-l-2 border-amber-500">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-[10px] font-bold text-slate-300">LINKUSDT <span class="text-slate-500 font-normal">@ OKX</span></span>
+                                    <span class="text-[10px] text-amber-400 mono">PATCHING...</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Gap detected: 14:10:05 - Now</p>
+                                <p class="text-[10px] text-slate-500 mt-1 italic">Action: Requesting missing buckets via WebSocket...</p>
+                            </div>
+                        </div>
+                        <div class="p-3 border-t border-slate-800 text-center">
+                            <button class="text-xs text-slate-400 hover:text-white">查看完整修復歷史 (2,401)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: AI Factors & Technical Indicators -->
+                <div class="xl:col-span-8">
+                    <div class="glass-panel overflow-hidden">
+                        <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+                            <div>
+                                <h3 class="font-bold text-sm flex items-center gap-2">
+                                    <i class="fas fa-microchip text-blue-400"></i> 即時技術指標與 AI 特徵因子
+                                </h3>
+                                <p class="text-[10px] text-slate-500">計算引擎：TensorEngine v2 (Latency: 14ms)</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" placeholder="搜尋因子..." class="bg-slate-800 border-slate-700 text-xs rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <button class="p-1.5 bg-slate-800 rounded border border-slate-700 hover:bg-slate-700">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-800/50 text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-800">
+                                    <tr>
+                                        <th class="px-6 py-3 font-medium">標的 Symbol</th>
+                                        <th class="px-6 py-3 font-medium">因子名稱 Factor</th>
+                                        <th class="px-6 py-3 font-medium">即時數值 Value</th>
+                                        <th class="px-6 py-3 font-medium">週期 Interval</th>
+                                        <th class="px-6 py-3 font-medium">變動 1H Δ</th>
+                                        <th class="px-6 py-3 font-medium text-right">計算時間</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-xs divide-y divide-slate-800/50 mono">
+                                    <tr class="hover:bg-blue-500/5 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-200">BTCUSDT</td>
+                                        <td class="px-6 py-4 text-blue-400">AI_TREND_SCORE</td>
+                                        <td class="px-6 py-4">0.8421</td>
+                                        <td class="px-6 py-4"><span class="bg-slate-800 px-1.5 py-0.5 rounded">15m</span></td>
+                                        <td class="px-6 py-4 text-emerald-500">+4.2%</td>
+                                        <td class="px-6 py-4 text-right text-slate-500">14:15:22.01</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-500/5 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-200">BTCUSDT</td>
+                                        <td class="px-6 py-4 text-slate-400">RSI_14</td>
+                                        <td class="px-6 py-4">68.42</td>
+                                        <td class="px-6 py-4"><span class="bg-slate-800 px-1.5 py-0.5 rounded">1h</span></td>
+                                        <td class="px-6 py-4 text-rose-500">-1.2%</td>
+                                        <td class="px-6 py-4 text-right text-slate-500">14:15:00.00</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-500/5 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-200">ETHUSDT</td>
+                                        <td class="px-6 py-4 text-blue-400">VOL_SURGE_PROB</td>
+                                        <td class="px-6 py-4">12.5%</td>
+                                        <td class="px-6 py-4"><span class="bg-slate-800 px-1.5 py-0.5 rounded">5m</span></td>
+                                        <td class="px-6 py-4 text-emerald-500">+12%</td>
+                                        <td class="px-6 py-4 text-right text-slate-500">14:15:30.45</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-500/5 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-200">ETHUSDT</td>
+                                        <td class="px-6 py-4 text-slate-400">MACD_HIST</td>
+                                        <td class="px-6 py-4">124.52</td>
+                                        <td class="px-6 py-4"><span class="bg-slate-800 px-1.5 py-0.5 rounded">4h</span></td>
+                                        <td class="px-6 py-4 text-slate-500">0.0%</td>
+                                        <td class="px-6 py-4 text-right text-slate-500">14:00:00.00</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-500/5 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-200">SOLUSDT</td>
+                                        <td class="px-6 py-4 text-blue-400">SENTIMENT_POL</td>
+                                        <td class="px-6 py-4">0.12</td>
+                                        <td class="px-6 py-4"><span class="bg-slate-800 px-1.5 py-0.5 rounded">1d</span></td>
+                                        <td class="px-6 py-4 text-rose-500">-15%</td>
+                                        <td class="px-6 py-4 text-right text-slate-500">08:00:01.12</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-500/5 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-slate-200">XRPUSDT</td>
+                                        <td class="px-6 py-4 text-blue-400">IMBALANCE_SCORE</td>
+                                        <td class="px-6 py-4">0.98</td>
+                                        <td class="px-6 py-4"><span class="bg-slate-800 px-1.5 py-0.5 rounded">Tick</span></td>
+                                        <td class="px-6 py-4 text-emerald-500">+112%</td>
+                                        <td class="px-6 py-4 text-right text-slate-500">14:15:35.88</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-4 bg-slate-900/60 border-t border-slate-800 flex justify-between items-center">
+                            <div class="flex gap-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                    <span class="text-[10px] text-slate-400 uppercase">Compute Healthy</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                    <span class="text-[10px] text-slate-400 uppercase">Pipeline Live</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button class="px-2 py-1 bg-slate-800 rounded text-[10px] border border-slate-700">PREV</button>
+                                <button class="px-2 py-1 bg-blue-600 rounded text-[10px] border border-blue-500">1</button>
+                                <button class="px-2 py-1 bg-slate-800 rounded text-[10px] border border-slate-700">2</button>
+                                <button class="px-2 py-1 bg-slate-800 rounded text-[10px] border border-slate-700">NEXT</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Requests Section -->
+            <section>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <i class="fas fa-history text-slate-400"></i>
+                        歷史 K 線請求記錄
+                    </h2>
+                    <button class="text-xs text-blue-400 hover:underline">展開全部記錄</button>
+                </div>
+                <div class="glass-panel">
+                    <div class="grid grid-cols-5 bg-slate-800/30 p-3 text-[10px] font-bold text-slate-500 border-b border-slate-800">
+                        <span>REQUEST ID</span>
+                        <span>TARGET & RANGE</span>
+                        <span>STATUS</span>
+                        <span>NODES INVOLVED</span>
+                        <span>TIMESTAMP</span>
+                    </div>
+                    <div class="divide-y divide-slate-800">
+                        <div class="grid grid-cols-5 p-3 text-[11px] items-center hover:bg-slate-800/20 transition-colors mono">
+                            <span class="text-slate-500">REQ-88912-AF</span>
+                            <span class="text-slate-200 uppercase">BTCUSDT (1m) | 2023-01-01 -> 2023-12-31</span>
+                            <span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i>COMPLETED</span>
+                            <span class="text-slate-400">Core-01, Core-02, Storage-N3</span>
+                            <span class="text-slate-500">2023-10-24 12:45:00</span>
+                        </div>
+                        <div class="grid grid-cols-5 p-3 text-[11px] items-center hover:bg-slate-800/20 transition-colors mono">
+                            <span class="text-slate-500">REQ-88910-XT</span>
+                            <span class="text-slate-200 uppercase">ETHUSDT (Tick) | Last 24 Hours Sync</span>
+                            <span class="text-blue-400"><i class="fas fa-spinner fa-spin mr-1"></i>FETCHING...</span>
+                            <span class="text-slate-400">Core-05 (Bybit Adapter)</span>
+                            <span class="text-slate-500">2023-10-24 14:12:33</span>
+                        </div>
+                        <div class="grid grid-cols-5 p-3 text-[11px] items-center hover:bg-slate-800/20 transition-colors mono opacity-60">
+                            <span class="text-slate-500">REQ-88901-ZZ</span>
+                            <span class="text-slate-200 uppercase">SOLUSDT (5m) | 2022 Backfill</span>
+                            <span class="text-rose-500"><i class="fas fa-times-circle mr-1"></i>FAILED (Timeout)</span>
+                            <span class="text-slate-400">Gateway-Primary</span>
+                            <span class="text-slate-500">2023-10-24 11:30:15</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Global Toast / Event Log (Bottom Left) -->
+    <div class="fixed bottom-6 left-72 z-50 pointer-events-none">
+        <div class="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-2xl flex items-center gap-4 animate-bounce pointer-events-auto">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full status-pulse"></div>
+            <p class="text-[10px] text-slate-300">
+                <span class="font-bold text-white mr-2">SYSTEM:</span> 
+                自動補洞程序啟動：已偵測到 BTCUSDT 歷史缺漏，正自備援節點下載中...
+            </p>
+            <button class="text-slate-500 hover:text-white"><i class="fas fa-times text-xs"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Simple page navigation simulation
+        document.querySelectorAll('[data-goto]').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-goto');
+                console.log(`Navigating to ${targetId}...`);
+                // In a real app, this would change the window.location or use a router
+                // For this prototype, we'll visually indicate the click
+                button.classList.add('scale-95');
+                setTimeout(() => button.classList.remove('scale-95'), 100);
+            });
+        });
+
+        // Add some random flickering to simulate live data
+        setInterval(() => {
+            const tableRows = document.querySelectorAll('tbody tr');
+            const randomRow = tableRows[Math.floor(Math.random() * tableRows.length)];
+            const valueCell = randomRow.cells[2];
+            const originalValue = valueCell.innerText;
+            
+            valueCell.classList.add('text-blue-400', 'font-bold');
+            setTimeout(() => {
+                valueCell.classList.remove('text-blue-400', 'font-bold');
+            }, 500);
+        }, 3000);
+    </script>
+
+<script>
+  // Pro Prototype - Static Navigation Shim
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-goto]');
+      if (target) {
+        e.preventDefault();
+        const pageId = target.getAttribute('data-goto');
+        // Navigate to the corresponding HTML file
+        window.location.href = pageId + '.html';
+      }
+    });
+  });
+</script>
+</body>
+</html>
+```
